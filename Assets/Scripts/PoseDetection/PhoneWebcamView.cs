@@ -8,6 +8,8 @@ public class PhoneWebcamView : MonoBehaviour
     public int requestedWidth = 1280;
     public int requestedHeight = 720;
     public int requestedFPS = 30;
+    public bool flipHorizontally = true;
+    public bool flipVertically;
 
     public WebCamTexture WebcamTexture { get; private set; }
 
@@ -43,8 +45,33 @@ public class PhoneWebcamView : MonoBehaviour
 
         WebcamTexture = new WebCamTexture(selectedName, requestedWidth, requestedHeight, requestedFPS);
         rawImage.texture = WebcamTexture;
-        rawImage.material.mainTexture = WebcamTexture;
         WebcamTexture.Play();
+    }
+
+    void Update()
+    {
+        ApplyDisplayTransform();
+    }
+
+    void ApplyDisplayTransform()
+    {
+        if (rawImage == null || WebcamTexture == null)
+        {
+            return;
+        }
+
+        rawImage.uvRect = new Rect(0f, 0f, 1f, 1f);
+
+        RectTransform rectTransform = rawImage.rectTransform;
+        if (rectTransform != null)
+        {
+            rectTransform.localEulerAngles = new Vector3(0f, 0f, -WebcamTexture.videoRotationAngle);
+
+            float scaleX = flipHorizontally ? -1f : 1f;
+            bool shouldFlipVertically = flipVertically ^ WebcamTexture.videoVerticallyMirrored;
+            float scaleY = shouldFlipVertically ? -1f : 1f;
+            rectTransform.localScale = new Vector3(scaleX, scaleY, 1f);
+        }
     }
 
     void OnDestroy()

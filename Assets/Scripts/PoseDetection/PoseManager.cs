@@ -5,6 +5,11 @@ using UnityEngine;
 
 public class PoseManager : MonoBehaviour
 {
+    public const int LeftElbowIndex = 13;
+    public const int RightElbowIndex = 14;
+    public const int LeftWristIndex = 15;
+    public const int RightWristIndex = 16;
+
     public PhoneWebcamView webcamView;
     public PosePreview posePreview;
     public ImagePreview imagePreview;
@@ -26,6 +31,40 @@ public class PoseManager : MonoBehaviour
     string m_LandmarkerOutputName;
     bool m_IsProcessingFrame;
     bool m_IsDestroying;
+    readonly bool[] m_KeypointActive = new bool[k_NumKeypoints];
+    readonly Vector3[] m_KeypointWorldPositions = new Vector3[k_NumKeypoints];
+
+    public bool TryGetKeypointWorldPosition(int index, out Vector3 position)
+    {
+        if (index >= 0 && index < k_NumKeypoints && m_KeypointActive[index])
+        {
+            position = m_KeypointWorldPositions[index];
+            return true;
+        }
+
+        position = default;
+        return false;
+    }
+
+    public bool TryGetLeftHandPosition(out Vector3 position)
+    {
+        return TryGetKeypointWorldPosition(LeftWristIndex, out position);
+    }
+
+    public bool TryGetRightHandPosition(out Vector3 position)
+    {
+        return TryGetKeypointWorldPosition(RightWristIndex, out position);
+    }
+
+    public bool TryGetLeftElbowPosition(out Vector3 position)
+    {
+        return TryGetKeypointWorldPosition(LeftElbowIndex, out position);
+    }
+
+    public bool TryGetRightElbowPosition(out Vector3 position)
+    {
+        return TryGetKeypointWorldPosition(RightElbowIndex, out position);
+    }
 
     void Start()
     {
@@ -100,7 +139,10 @@ public class PoseManager : MonoBehaviour
             var scorePassesThreshold = outputScore[0] >= scoreThreshold;
             posePreview.SetActive(scorePassesThreshold);
             if (!scorePassesThreshold || m_IsDestroying)
+            {
+                ClearTrackedKeypoints();
                 return;
+            }
 
             var selectedIndex = outputIdx[0];
             var anchorPosition = k_DetectorInputSize * new float2(m_Anchors[selectedIndex, 0], m_Anchors[selectedIndex, 1]);
@@ -143,8 +185,11 @@ public class PoseManager : MonoBehaviour
                 var positionImageSpace = BlazeUtils.mul(landmarkerMatrix, new float2(landmarks[5 * i], landmarks[5 * i + 1]));
                 var visibility = landmarks[5 * i + 3];
                 var presence = landmarks[5 * i + 4];
+                var isTracked = visibility > 0.5f && presence > 0.5f;
                 var worldPosition = ImageToWorld(positionImageSpace, textureWidth, textureHeight) + new Vector3(0, 0, landmarks[5 * i + 2] / textureHeight);
-                posePreview.SetKeypoint(i, visibility > 0.5f && presence > 0.5f, worldPosition);
+                m_KeypointActive[i] = isTracked;
+                m_KeypointWorldPositions[i] = worldPosition;
+                posePreview.SetKeypoint(i, isTracked, worldPosition);
             }
         }
         catch (OperationCanceledException)
@@ -154,6 +199,7 @@ public class PoseManager : MonoBehaviour
         {
             Debug.LogException(ex);
             posePreview.SetActive(false);
+            ClearTrackedKeypoints();
         }
         finally
         {
@@ -177,6 +223,11 @@ public class PoseManager : MonoBehaviour
     static Vector3 ImageToWorld(Vector2 position, float textureWidth, float textureHeight)
     {
         return (position - 0.5f * new Vector2(textureWidth, textureHeight)) / textureHeight;
+    }
+
+    void ClearTrackedKeypoints()
+    {
+        Array.Clear(m_KeypointActive, 0, m_KeypointActive.Length);
     }
 
     void OnDestroy()
