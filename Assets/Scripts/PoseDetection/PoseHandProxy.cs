@@ -6,10 +6,12 @@ public class PoseHandProxy : MonoBehaviour
 {
     [SerializeField] private float _followSpeed = 20f;
     [SerializeField] private float _upwardBias = 0.15f;
+    [SerializeField] private bool _lockToXYPlane = true;
 
     private BoxCollider _boxCollider;
     private Rigidbody _rigidbody;
     private Vector3 _previousPosition;
+    private float _movementPlaneZ;
 
     public Vector3 Velocity { get; private set; }
     public Vector3 SurfaceNormal { get; private set; } = Vector3.up;
@@ -23,6 +25,12 @@ public class PoseHandProxy : MonoBehaviour
         _rigidbody.isKinematic = true;
         _rigidbody.useGravity = false;
         _rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+        _movementPlaneZ = transform.position.z;
+        if (_lockToXYPlane)
+        {
+            _rigidbody.constraints |= RigidbodyConstraints.FreezePositionZ;
+        }
+
         _previousPosition = transform.position;
     }
 
@@ -47,6 +55,8 @@ public class PoseHandProxy : MonoBehaviour
             return;
         }
 
+        targetPosition = GetPlanarPosition(targetPosition);
+        elbowPosition = GetPlanarPosition(elbowPosition);
         UpdateSurfaceOrientation(hasElbowPosition, targetPosition, elbowPosition);
 
         if (!gameObject.activeSelf)
@@ -59,7 +69,8 @@ public class PoseHandProxy : MonoBehaviour
         }
 
         Vector3 nextPosition = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * _followSpeed);
-        Velocity = (nextPosition - _previousPosition) / Mathf.Max(Time.deltaTime, 0.0001f);
+        nextPosition = GetPlanarPosition(nextPosition);
+        Velocity = GetPlanarVector(nextPosition - _previousPosition) / Mathf.Max(Time.deltaTime, 0.0001f);
         _rigidbody.MovePosition(nextPosition);
         _previousPosition = nextPosition;
     }
@@ -96,5 +107,25 @@ public class PoseHandProxy : MonoBehaviour
         SurfaceNormal = normalWithBias.sqrMagnitude < 0.0001f ? Vector3.up : normalWithBias.normalized;
 
         _rigidbody.MoveRotation(Quaternion.LookRotation(Vector3.forward, SurfaceNormal));
+    }
+
+    private Vector3 GetPlanarPosition(Vector3 position)
+    {
+        if (_lockToXYPlane)
+        {
+            position.z = _movementPlaneZ;
+        }
+
+        return position;
+    }
+
+    private Vector3 GetPlanarVector(Vector3 vector)
+    {
+        if (_lockToXYPlane)
+        {
+            vector.z = 0f;
+        }
+
+        return vector;
     }
 }

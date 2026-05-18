@@ -257,6 +257,7 @@ MonoBehaviour:
   poseLandmarker: {fileID: 5022602860645237092, guid: 414916b2af2c16a49b64136c181ad542, type: 3}
   anchorsCSV: {fileID: 4900000, guid: 3e88456b82cc63d4b9237f1dc38bad6d, type: 3}
   scoreThreshold: 0.75
+  mirrorOutputHorizontally: 1
 --- !u!4 &323009752
 Transform:
   m_ObjectHideFlags: 0
@@ -364,7 +365,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &645548181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -382,10 +383,16 @@ MonoBehaviour:
   _handVelocityInfluence: 0.01
   _minimumIncomingSpeed: 2
   _fallGravityMultiplier: 0.01
+  _lockToXYPlane: 1
   _respawnTopY: 1.2
   _outOfBoundsY: -1.2
   _outOfBoundsX: 1.4
   _outOfBoundsZ: 1
+  _useCameraViewBounds: 1
+  _boundsCamera: {fileID: 0}
+  _showResetBounds: 1
+  _boundsColor: {r: 1, g: 0.85, b: 0.2, a: 0.85}
+  _boundsLineWidth: 0.02
 --- !u!54 &645548182
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -643,57 +650,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!1 &1368681182
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1368681184}
-  - component: {fileID: 1368681185}
-  m_Layer: 0
-  m_Name: Pose Detection
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1368681184
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1368681182}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1368681185
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1368681182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae2eb443caa7ad94aad55b4a8a8fb4ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  posePreview: {fileID: 5023127968907877657}
-  imagePreview: {fileID: 540288955}
-  imageTexture: {fileID: 2800000, guid: c658c15663e790f42876d622fe7da783, type: 3}
-  poseDetector: {fileID: 5022602860645237092, guid: e30d99d4b5cbed1439961d20a00ea84b, type: 3}
-  poseLandmarker: {fileID: 5022602860645237092, guid: 414916b2af2c16a49b64136c181ad542, type: 3}
-  anchorsCSV: {fileID: 4900000, guid: 3e88456b82cc63d4b9237f1dc38bad6d, type: 3}
-  scoreThreshold: 0.75
 --- !u!1 &1573110369
 GameObject:
   m_ObjectHideFlags: 0
@@ -1039,7 +995,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2112345601
 Transform:
   m_ObjectHideFlags: 0
@@ -1132,11 +1088,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6880152826874572511, guid: 585d5cb4d0fde2045805fda7581e0bda, type: 3}
       propertyPath: enable_box
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6880152826874572511, guid: 585d5cb4d0fde2045805fda7581e0bda, type: 3}
       propertyPath: enable_circle
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6880152826874572511, guid: 585d5cb4d0fde2045805fda7581e0bda, type: 3}
       propertyPath: enable_points
@@ -1170,6 +1126,5 @@ SceneRoots:
   - {fileID: 1573110372}
   - {fileID: 1941075074}
   - {fileID: 323009752}
-  - {fileID: 1368681184}
   - {fileID: 2112345601}
   - {fileID: 645548186}

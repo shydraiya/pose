@@ -17,6 +17,7 @@ public class PoseManager : MonoBehaviour
     public ModelAsset poseLandmarker;
     public TextAsset anchorsCSV;
     public float scoreThreshold = 0.75f;
+    public bool mirrorOutputHorizontally = true;
 
     const int k_NumAnchors = 2254;
     const int k_NumKeypoints = 33;
@@ -220,8 +221,11 @@ public class PoseManager : MonoBehaviour
         }
     }
 
-    static Vector3 ImageToWorld(Vector2 position, float textureWidth, float textureHeight)
+    Vector3 ImageToWorld(Vector2 position, float textureWidth, float textureHeight)
     {
+        if (mirrorOutputHorizontally)
+            position.x = textureWidth - position.x;
+
         return (position - 0.5f * new Vector2(textureWidth, textureHeight)) / textureHeight;
     }
 
